@@ -28,7 +28,7 @@ const nodecrypto = webcrypto ? null : require('crypto');
  * @param {Uint8Array} data Data to encrypt.
  * @returns {Promise<Uint8Array>} Ciphertext.
  */
-export const encryptAesGcm = async (rawKey, iv, data) => {
+exports.encryptAesGcm = async (rawKey, iv, data) => {
   if (!(rawKey instanceof Uint8Array)) {
     throw new TypeError('rawKey must be of Uint8Array type.');
   }
@@ -72,7 +72,7 @@ export const encryptAesGcm = async (rawKey, iv, data) => {
  * @param {Uint8Array} ciphertext Ciphertext to decrypt.
  * @returns {Promise<Uint8Array>} Decrypted data.
  */
- export const decryptAesGcm = async (rawKey, iv, ciphertext) => {
+exports.decryptAesGcm = async (rawKey, iv, ciphertext) => {
   if (!(rawKey instanceof Uint8Array)) {
     throw new TypeError('rawKey must be of Uint8Array type.');
   }
@@ -118,7 +118,7 @@ export const encryptAesGcm = async (rawKey, iv, data) => {
  * @param {Uint8Array} data Message to digest.
  * @returns {Promise<Uint8Array>} SHA-256 digest of the message.
  */
-export const sha256 = async (data) => {
+exports.sha256 = async (data) => {
   if (!(data instanceof Uint8Array)) {
     throw new TypeError('data must be of Uint8Array type');
   }
@@ -141,7 +141,7 @@ export const sha256 = async (data) => {
  * @param {Uint8Array} rawKey Common key used for signature.
  * @returns {Promise<Uint8Array>} HMAC-SHA-256 signature of the message.
  */
-export const sha256Hmac = async (data, rawKey) => {
+exports.sha256Hmac = async (data, rawKey) => {
   if (!(data instanceof Uint8Array)) {
     throw new TypeError('data must be of Uint8Array type');
   }
