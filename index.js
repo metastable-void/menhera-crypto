@@ -60,8 +60,10 @@ exports.encryptAesGcm = async (rawKey, iv, data) => {
   } else {
     // Node.JS
     const cipher = nodecrypto.createCipheriv('aes-256-gcm', rawKey, iv);
-    const buffer = Buffer.concat([cipher.update(data), cipher.final(), cipher.getAuthTag()]);
-    return new Uint8Array(buffer.buffer);
+    const buffer1 = cipher.update(data);
+    const buffer2 = cipher.final();
+    const buffer3 = cipher.getAuthTag();
+    return new Uint8Array([... buffer1, ... buffer2, ... buffer3]);
   }
 };
 
@@ -99,7 +101,7 @@ exports.decryptAesGcm = async (rawKey, iv, ciphertext) => {
       'encrypt',
       'decrypt',
     ]);
-    const dataBuffer = await webcrypto.subtle.encrypt({
+    const dataBuffer = await webcrypto.subtle.decrypt({
       name: 'AES-GCM',
       iv,
     }, key, ciphertext);
