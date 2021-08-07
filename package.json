@@ -1,0 +1,25 @@
+{
+  "name": "menhera-crypto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/metastable-void/menhera-crypto.git"
+  },
+  "author": "Menhera.org developers",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/metastable-void/menhera-crypto/issues"
+  },
+  "homepage": "https://github.com/metastable-void/menhera-crypto#readme",
+  "dependencies": {
+    "curve25519-js": "^0.0.4",
+    "noble-ed25519": "^1.2.5",
+    "sidh": "^5.1.4",
+    "sphincs": "^2.4.1"
+  }
+}
