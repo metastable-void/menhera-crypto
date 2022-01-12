@@ -20,7 +20,11 @@
 
 const webcrypto = globalThis.crypto && crypto.getRandomValues && crypto.subtle && crypto;
 const nodecrypto = webcrypto ? null : require('crypto');
-const sike = require('sidh');
+const { sidh } = require('sidh');
+const { sphincs } = require('sphincs');
+
+
+exports.raw = {};
 
 /**
  * Encrypts data with AES-256-GCM.
@@ -29,7 +33,7 @@ const sike = require('sidh');
  * @param {Uint8Array} data Data to encrypt.
  * @returns {Promise<Uint8Array>} Ciphertext.
  */
-exports.encryptAesGcm = async (rawKey, iv, data) => {
+exports.raw.encryptAesGcm = async (rawKey, iv, data) => {
   if (!(rawKey instanceof Uint8Array)) {
     throw new TypeError('rawKey must be of Uint8Array type.');
   }
@@ -75,7 +79,7 @@ exports.encryptAesGcm = async (rawKey, iv, data) => {
  * @param {Uint8Array} ciphertext Ciphertext to decrypt.
  * @returns {Promise<Uint8Array>} Decrypted data.
  */
-exports.decryptAesGcm = async (rawKey, iv, ciphertext) => {
+exports.raw.decryptAesGcm = async (rawKey, iv, ciphertext) => {
   if (!(rawKey instanceof Uint8Array)) {
     throw new TypeError('rawKey must be of Uint8Array type.');
   }
@@ -121,7 +125,7 @@ exports.decryptAesGcm = async (rawKey, iv, ciphertext) => {
  * @param {Uint8Array} data Message to digest.
  * @returns {Promise<Uint8Array>} SHA-256 digest of the message.
  */
-exports.sha256 = async (data) => {
+exports.raw.sha256 = async (data) => {
   if (!(data instanceof Uint8Array)) {
     throw new TypeError('data must be of Uint8Array type');
   }
@@ -144,7 +148,7 @@ exports.sha256 = async (data) => {
  * @param {Uint8Array} rawKey Common key used for signature.
  * @returns {Promise<Uint8Array>} HMAC-SHA-256 signature of the message.
  */
-exports.sha256Hmac = async (data, rawKey) => {
+exports.raw.sha256Hmac = async (data, rawKey) => {
   if (!(data instanceof Uint8Array)) {
     throw new TypeError('data must be of Uint8Array type');
   }
@@ -173,11 +177,52 @@ exports.sha256Hmac = async (data, rawKey) => {
   }
 };
 
-exports.sikeKeyPair = async () => {
-  const {privateKey, publicKey} = await sike.keyPair();
+/**
+ * Generates a SIKE key pair.
+ * @returns {Promise<{privateKey: Uint8Array, publicKey: Uint8Array}>}
+ */
+exports.raw.sikeKeyPair = async () => {
+  const {privateKey, publicKey} = await sidh.keyPair();
   return {privateKey, publicKey};
 };
 
-exports.sikeSharedSecret = async (privateKey, publicKey) => {
-  return await sike.secret(publicKey, privateKey);
+/**
+ * Computes the shared secret for the given keys.
+ * @param {Uint8Array} privateKey 
+ * @param {Uint8Array} publicKey 
+ * @returns {Promise<Uint8Array>}
+ */
+exports.raw.sikeSharedSecret = async (privateKey, publicKey) => {
+  return await sidh.secret(publicKey, privateKey);
+};
+
+/**
+ * Generates a SPHINCS key pair.
+ * @returns {Promise<{privateKey: Uint8Array, publicKey: Uint8Array}>}
+ */
+exports.raw.sphincsKeyPair = async () => {
+  const {privateKey, publicKey} = await sphincs.keyPair();
+  return {privateKey, publicKey};
+};
+
+/**
+ * Signs a message with the given secret key.
+ * @param {Uint8Array} privateKey 
+ * @param {Uint8Array} message 
+ * @returns {Promise<Uint8Array>} signature
+ */
+exports.raw.sphincsSign = async (privateKey, message) => {
+  const signature = await sphincs.signDetached(message, privateKey);
+  return signature;
+};
+
+/**
+ * Verifies a signature against a message with the given public key.
+ * @param {Uint8Array} publicKey 
+ * @param {Uint8Array} message 
+ * @param {Uint8Array} signature 
+ * @returns {Promise<boolean>} result
+ */
+exports.raw.sphincsVerify = async (publicKey, message, signature) => {
+  return await sphincs.verifyDetached(signature, message, publicKey);
 };
