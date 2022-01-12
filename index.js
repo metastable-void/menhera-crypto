@@ -23,6 +23,7 @@ const nodecrypto = webcrypto ? null : require('crypto');
 const { sidh } = require('sidh');
 const { sphincs } = require('sphincs');
 
+const curve25519 = require('curve25519-js');
 
 exports.raw = {};
 
@@ -225,4 +226,29 @@ exports.raw.sphincsSign = async (privateKey, message) => {
  */
 exports.raw.sphincsVerify = async (publicKey, message, signature) => {
   return await sphincs.verifyDetached(signature, message, publicKey);
+};
+
+/**
+ * Generates a Curve25519 key pair.
+ * @returns {Promise<{privateKey: Uint8Array, publicKey: Uint8Array}>}
+ */
+exports.raw.curve25519KeyPair = async () => {
+  const seed = new Uint8Array(32);
+  if (webcrypto) {
+    webcrypto.getRandomValues(seed);
+  } else {
+    nodecrypto.randomFillSync(seed);
+  }
+  const {private, public} = curve25519.generateKeyPair(seed);
+  return {privateKey: private, publicKey: public};
+};
+
+/**
+ * Computes a Curve25519 shared secret from the given keys.
+ * @param {Uint8Array} privateKey 
+ * @param {Uint8Array} publicKey 
+ * @returns {Promise<Uint8Array>}
+ */
+exports.raw.curve25519SharedSecret = async (privateKey, publicKey) => {
+  return curve25519.sharedKey(privateKey, publicKey);
 };
