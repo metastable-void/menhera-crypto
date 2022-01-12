@@ -26,8 +26,7 @@ const { sphincs } = require('sphincs');
 const curve25519 = require('curve25519-js');
 const ed = require('@noble/ed25519');
 
-exports.raw = {};
-
+exports.AesGcm = {};
 /**
  * Encrypts data with AES-256-GCM.
  * @param {Uint8Array} rawKey 32-byte (256-bit) key.
@@ -35,7 +34,7 @@ exports.raw = {};
  * @param {Uint8Array} data Data to encrypt.
  * @returns {Promise<Uint8Array>} Ciphertext.
  */
-exports.raw.encryptAesGcm = async (rawKey, iv, data) => {
+exports.AesGcm.encrypt = async (rawKey, iv, data) => {
   if (!(rawKey instanceof Uint8Array)) {
     throw new TypeError('rawKey must be of Uint8Array type.');
   }
@@ -82,7 +81,7 @@ exports.raw.encryptAesGcm = async (rawKey, iv, data) => {
  * @param {Uint8Array} ciphertext Ciphertext to decrypt.
  * @returns {Promise<Uint8Array>} Decrypted data.
  */
-exports.raw.decryptAesGcm = async (rawKey, iv, ciphertext) => {
+exports.AesGcm.decrypt = async (rawKey, iv, ciphertext) => {
   if (!(rawKey instanceof Uint8Array)) {
     throw new TypeError('rawKey must be of Uint8Array type.');
   }
@@ -123,12 +122,13 @@ exports.raw.decryptAesGcm = async (rawKey, iv, ciphertext) => {
   }
 };
 
+exports.Sha256 = {};
 /**
  * Computes SHA-256 digest of message.
  * @param {Uint8Array} data Message to digest.
  * @returns {Promise<Uint8Array>} SHA-256 digest of the message.
  */
-exports.raw.sha256 = async (data) => {
+exports.Sha256.hash = async (data) => {
   if (!(data instanceof Uint8Array)) {
     throw new TypeError('data must be of Uint8Array type');
   }
@@ -151,7 +151,7 @@ exports.raw.sha256 = async (data) => {
  * @param {Uint8Array} rawKey Common key used for signature.
  * @returns {Promise<Uint8Array>} HMAC-SHA-256 signature of the message.
  */
-exports.raw.sha256Hmac = async (data, rawKey) => {
+exports.Sha256.hmac = async (data, rawKey) => {
   if (!(data instanceof Uint8Array)) {
     throw new TypeError('data must be of Uint8Array type');
   }
@@ -180,11 +180,12 @@ exports.raw.sha256Hmac = async (data, rawKey) => {
   }
 };
 
+exports.Sike = {};
 /**
  * Generates a SIKE key pair.
  * @returns {Promise<{privateKey: Uint8Array, publicKey: Uint8Array}>}
  */
-exports.raw.sikeKeyPair = async () => {
+exports.Sike.generateKeyPair = async () => {
   const {privateKey, publicKey} = await sidh.keyPair();
   return {privateKey, publicKey};
 };
@@ -195,15 +196,16 @@ exports.raw.sikeKeyPair = async () => {
  * @param {Uint8Array} publicKey 
  * @returns {Promise<Uint8Array>}
  */
-exports.raw.sikeSharedSecret = async (privateKey, publicKey) => {
+exports.Sike.computeSharedSecret = async (privateKey, publicKey) => {
   return await sidh.secret(publicKey, privateKey);
 };
 
+exports.Sphincs = {};
 /**
  * Generates a SPHINCS key pair.
  * @returns {Promise<{privateKey: Uint8Array, publicKey: Uint8Array}>}
  */
-exports.raw.sphincsKeyPair = async () => {
+exports.Sphincs.generateKeyPair = async () => {
   const {privateKey, publicKey} = await sphincs.keyPair();
   return {privateKey, publicKey};
 };
@@ -214,7 +216,7 @@ exports.raw.sphincsKeyPair = async () => {
  * @param {Uint8Array} message 
  * @returns {Promise<Uint8Array>} signature
  */
-exports.raw.sphincsSign = async (privateKey, message) => {
+exports.Sphincs.sign = async (privateKey, message) => {
   const signature = await sphincs.signDetached(message, privateKey);
   return signature;
 };
@@ -226,15 +228,16 @@ exports.raw.sphincsSign = async (privateKey, message) => {
  * @param {Uint8Array} signature 
  * @returns {Promise<boolean>} result
  */
-exports.raw.sphincsVerify = async (publicKey, message, signature) => {
+exports.Sphincs.verify = async (publicKey, message, signature) => {
   return await sphincs.verifyDetached(signature, message, publicKey);
 };
 
+exports.Curve25519 = {};
 /**
  * Generates a Curve25519 key pair.
  * @returns {Promise<{privateKey: Uint8Array, publicKey: Uint8Array}>}
  */
-exports.raw.curve25519KeyPair = async () => {
+exports.Curve25519.generateKeyPair = async () => {
   const seed = new Uint8Array(32);
   if (webcrypto) {
     webcrypto.getRandomValues(seed);
@@ -251,15 +254,16 @@ exports.raw.curve25519KeyPair = async () => {
  * @param {Uint8Array} publicKey 
  * @returns {Promise<Uint8Array>}
  */
-exports.raw.curve25519SharedSecret = async (privateKey, publicKey) => {
+exports.curve25519.computeSharedSecret = async (privateKey, publicKey) => {
   return curve25519.sharedKey(privateKey, publicKey);
 };
 
+exports.Ed25519 = {};
 /**
  * Generates an Ed25519 key pair.
  * @returns {Promise<{privateKey: Uint8Array, publicKey: Uint8Array}>}
  */
-exports.raw.ed25519KeyPair = async () => {
+exports.Ed25519.generateKeyPair = async () => {
   const privateKey = ed.utils.randomPrivateKey();
   const publicKey = await ed.getPublicKey(privateKey);
   return {privateKey, publicKey};
@@ -271,7 +275,7 @@ exports.raw.ed25519KeyPair = async () => {
  * @param {Uint8Array} message 
  * @returns {Promise<Uint8Array>}
  */
-exports.raw.ed25519Sign = async (privateKey, message) => {
+exports.Ed25519.sign = async (privateKey, message) => {
   return await ed.sign(message, privateKey);
 };
 
@@ -282,6 +286,6 @@ exports.raw.ed25519Sign = async (privateKey, message) => {
  * @param {Uint8Array} signature 
  * @returns {Promise<boolean>}
  */
-exports.raw.ed25519Verify = async (publicKey, message, signature) => {
+exports.Ed25519.verify = async (publicKey, message, signature) => {
   return await ed.verify(signature, message, publicKey);
 };
