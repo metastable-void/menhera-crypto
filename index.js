@@ -70,7 +70,8 @@ exports.raw.encryptAesGcm = async (rawKey, iv, data) => {
     const buffer1 = cipher.update(data);
     const buffer2 = cipher.final();
     const buffer3 = cipher.getAuthTag();
-    return new Uint8Array([... buffer1, ... buffer2, ... buffer3]);
+    const buffer = Buffer.concat([buffer1, buffer2, buffer3]);
+    return new Uint8Array(buffer.buffer);
   }
 };
 
