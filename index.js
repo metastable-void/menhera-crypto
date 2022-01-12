@@ -24,6 +24,7 @@ const { sidh } = require('sidh');
 const { sphincs } = require('sphincs');
 
 const curve25519 = require('curve25519-js');
+const ed = require('@noble/ed25519');
 
 exports.raw = {};
 
@@ -251,4 +252,35 @@ exports.raw.curve25519KeyPair = async () => {
  */
 exports.raw.curve25519SharedSecret = async (privateKey, publicKey) => {
   return curve25519.sharedKey(privateKey, publicKey);
+};
+
+/**
+ * Generates an Ed25519 key pair.
+ * @returns {Promise<{privateKey: Uint8Array, publicKey: Uint8Array}>}
+ */
+exports.raw.ed25519KeyPair = async () => {
+  const privateKey = ed.utils.randomPrivateKey();
+  const publicKey = await ed.getPublicKey(privateKey);
+  return {privateKey, publicKey};
+};
+
+/**
+ * Signs a message with a Ed25519 private key.
+ * @param {Uinr8Array} privateKey 
+ * @param {Uint8Array} message 
+ * @returns {Promise<Uint8Array>}
+ */
+exports.raw.ed25519Sign = async (privateKey, message) => {
+  return await ed.sign(message, privateKey);
+};
+
+/**
+ * Verifies a signature against a message with the given public key.
+ * @param {Uint8Array} publicKey 
+ * @param {Uint8Array} message 
+ * @param {Uint8Array} signature 
+ * @returns {Promise<boolean>}
+ */
+exports.raw.ed25519Verify = async (publicKey, message, signature) => {
+  return await ed.verify(signature, message, publicKey);
 };

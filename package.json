@@ -18,7 +18,7 @@
   "homepage": "https://github.com/metastable-void/menhera-crypto#readme",
   "dependencies": {
     "curve25519-js": "^0.0.4",
-    "noble-ed25519": "^1.2.5",
+    "@noble/ed25519": "^1.4.0",
     "sidh": "^4.1.6",
     "sphincs": "^2.4.1"
   }
