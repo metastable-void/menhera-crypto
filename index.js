@@ -254,7 +254,7 @@ exports.Curve25519.generateKeyPair = async () => {
  * @param {Uint8Array} publicKey 
  * @returns {Promise<Uint8Array>}
  */
-exports.curve25519.computeSharedSecret = async (privateKey, publicKey) => {
+exports.Curve25519.computeSharedSecret = async (privateKey, publicKey) => {
   return curve25519.sharedKey(privateKey, publicKey);
 };
 
