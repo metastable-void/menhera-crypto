@@ -20,6 +20,7 @@
 
 const webcrypto = globalThis.crypto && crypto.getRandomValues && crypto.subtle && crypto;
 const nodecrypto = webcrypto ? null : require('crypto');
+const sike = require('sidh');
 
 /**
  * Encrypts data with AES-256-GCM.
@@ -170,4 +171,13 @@ exports.sha256Hmac = async (data, rawKey) => {
     const buffer = hmac.digest();
     return new Uint8Array(buffer.buffer);
   }
+};
+
+exports.sikeKeyPair = async () => {
+  const {privateKey, publicKey} = await sike.keyPair();
+  return {privateKey, publicKey};
+};
+
+exports.sikeSharedSecret = async (privateKey, publicKey) => {
+  return await sike.secret(publicKey, privateKey);
 };
