@@ -26,6 +26,30 @@ const { sphincs } = require('sphincs');
 const curve25519 = require('curve25519-js');
 const ed = require('@noble/ed25519');
 
+exports.utils = {};
+const compareUint8Array = (buffer1, buffer2) => {
+  if (buffer1.length != buffer2.length || buffer1.byteLength != buffer2.byteLength) {
+    return false;
+  }
+  let result = true;
+  for (let i = 0; i < buffer1.length; i++) {
+    result = result && buffer1[i] == buffer2[i];
+  }
+  return result;
+}
+exports.utils.compareUint8Array = compareUint8Array;
+
+const getRandomValues = (byteLength) => {
+  const buffer = new Uint8Array(0 | byteLength);
+  if (webcrypto) {
+    webcrypto.getRandomValues(buffer);
+  } else {
+    nodecrypto.randomFillSync(buffer);
+  }
+  return buffer;
+};
+exports.utils.getRandomValues = getRandomValues;
+
 exports.AesGcm = {};
 /**
  * Encrypts data with AES-256-GCM.
@@ -238,12 +262,7 @@ exports.Curve25519 = {};
  * @returns {Promise<{privateKey: Uint8Array, publicKey: Uint8Array}>}
  */
 exports.Curve25519.generateKeyPair = async () => {
-  const seed = new Uint8Array(32);
-  if (webcrypto) {
-    webcrypto.getRandomValues(seed);
-  } else {
-    nodecrypto.randomFillSync(seed);
-  }
+  const seed = getRandomValues(32);
   const {private, public} = curve25519.generateKeyPair(seed);
   return {privateKey: private, publicKey: public};
 };
